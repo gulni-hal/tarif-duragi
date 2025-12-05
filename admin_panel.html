@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Admin Yönetim Paneli">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Admin Panel - Yönetim</title>
+    <link rel="icon" href="img/core-img/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        
+       
+        body {
+            font-family: "Open Sans", sans-serif;
+            background-color: #f3f5f8;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+       
+        .mobile-menu-toggler {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background-color: #D34E4E;
+            color: #ffffff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+       
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .sidebar-overlay.visible {
+            display: block;
+        }
+
+        
+        .admin-sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #474747;
+            color: #ffffff;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        
+        .admin-info {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .admin-info h4 {
+            color: #ffffff;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .admin-info p {
+            color: #CE7E5A;
+            font-size: 14px;
+            margin: 0;
+        }
+
+       
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            flex-grow: 1;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 12px 15px;
+            color: #ffffff;
+            font-weight: 400;
+            font-size: 14px;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background-color: #D34E4E;
+            color: #ffffff;
+        }
+        
+        .sidebar-nav a i {
+            margin-right: 10px;
+        }
+
+       
+        .logout-link {
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+        }
+        
+        .logout-link a {
+            background-color: transparent !important;
+            border: 1px solid #D34E4E;
+            color: #D34E4E !important;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .logout-link a:hover {
+            background-color: #D34E4E !important;
+            color: #ffffff !important;
+        }
+
+       
+        .admin-content {
+            margin-left: 250px;
+            padding: 40px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease;
+        }
+
+        .dashboard-card {
+            background-color: #ffffff;
+            padding: 30px;
+            border-left: 3px solid #D34E4E;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            margin-bottom: 30px;
+            height: 100%;
+        }
+        
+        .dashboard-card h5 {
+            font-size: 16px;
+            color: #9b9b9b;
+            margin-bottom: 5px;
+        }
+        
+        .dashboard-card h3 {
+            font-size: 36px;
+            color: #000000;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* Başlık stili */
+        .admin-heading {
+            font-size: 30px;
+            color: #474747;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #D34E4E;
+            padding-bottom: 10px;
+        }
+        
+        /* AKTİFLİK LOG VE ANALİZ STİLLERİ */
+        .activity-log {
+            list-style: none;
+            padding: 0;
+            max-height: 350px; /* Sabit yükseklik */
+            overflow-y: auto; /* Scroll eklendi */
+        }
+        
+        .activity-log li {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .activity-log li:last-child {
+            border-bottom: none;
+        }
+        
+        .log-time {
+            font-size: 12px;
+            color: #9b9b9b;
+            flex-shrink: 0;
+            margin-left: 15px;
+        }
+        
+        .log-content {
+            font-size: 14px;
+            color: #474747;
+            font-weight: 500;
+        }
+        
+       
+        .log-content span.action-type {
+            font-weight: 700;
+        }
+        .log-content .action-add-recipe { color: #D34E4E; } /* Tarif Ekleme */
+        .log-content .action-add-blog { color: #CE7E5A; } /* Blog Ekleme */
+        .log-content .action-complaint { color: #fbb710; } /* Şikayet */
+        
+      
+        .pie-analysis-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+
+        
+       
+       
+        .mt-5 {
+            margin-top: 3rem !important;
+        }
+        
+        .p-5 {
+            padding: 3rem !important;
+        }
+        
+        .text-center {
+            text-align: center !important;
+        }
+        /* Row ve Column Responsive Düzenlemeleri */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-right: -15px;
+            margin-left: -15px;
+        }
+        
+        .col-12, .col-md-6, .col-lg-3, .col-lg-6 {
+            position: relative;
+            width: 100%;
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+        
+        @media (min-width: 992px) {
+            .col-lg-6 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+        
+        /* Responsive Tasarım için Media Queries (Önceki koddan) */
+        @media (max-width: 991px) {
+            .mobile-menu-toggler {
+                display: block;
+            }
+            .admin-sidebar {
+                transform: translateX(-100%);
+            }
+            .admin-sidebar.open {
+                transform: translateX(0);
+            }
+            .admin-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+                padding-top: 80px;
+            }
+            .admin-heading {
+                font-size: 24px;
+                margin-bottom: 30px;
+            }
+            .dashboard-card {
+                padding: 20px;
+            }
+            .dashboard-card h3 {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-content {
+                padding: 15px;
+                padding-top: 70px;
+            }
+            .dashboard-card {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            .dashboard-card h5 {
+                font-size: 14px;
+            }
+            .dashboard-card h3 {
+                font-size: 24px;
+            }
+            .admin-heading {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .col-md-6 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .col-lg-3 {
+                flex: 0 0 25%;
+                max-width: 25%;
+            }
+        }
+        
+        
+        body.menu-open {
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="mobile-menu-toggler" id="mobile-menu-toggler">
+        <i class="fa fa-bars"></i>
+    </button>
+    
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <div class="admin-sidebar" id="admin-sidebar">
+        <div class="admin-info">
+            <i class="fa fa-user-circle fa-3x mb-2" style="color: #CE7E5A;"></i>
+            <h4>Gülnihal ERUSLU</h4>
+            <p>Admin</p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li>
+                <a href="admin_panel.html" class="active">
+                    <i class="fa fa-dashboard"></i> Genel
+                </a>
+            </li>
+            <li>
+                <a href="admin_tarif.html">
+                    <i class="fa fa-cutlery"></i> Tarifler
+                </a>
+            </li>
+            <li>
+                <a href="admin_blog.html">
+                    <i class="fa fa-pencil-square-o"></i> Blog Yazıları
+                </a>
+            </li>
+            <li>
+                <a href="admin_duyuru.html">
+                    <i class="fa fa-bullhorn"></i> Duyurular
+                </a>
+            </li>
+            <li>
+                <a href="admin_oneri.html">
+                    <i class="fa fa-envelope-o"></i> Öneri & Şikayet
+                </a>
+            </li>
+        </ul>
+        
+        <div class="logout-link">
+             <a href="index.html" class="btn delicious-btn w-100 btn-4">
+                 <i class="fa fa-sign-out"></i> Çıkış Yap
+             </a>
+        </div>
+    </div>
+
+    <div class="admin-content">
+        <h1 class="admin-heading">Genel Bakış</h1>
+
+        <div class="row">
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="dashboard-card">
+                    <h5>Toplam Tarif</h5>
+                    <h3>83</h3>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="dashboard-card" style="border-left-color: #CE7E5A;">
+                    <h5>Aktif Blog</h5>
+                    <h3>3</h3>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="dashboard-card" style="border-left-color: #fbb710;">
+                    <h5>Yeni Yorum</h5>
+                    <h3>12</h3>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="dashboard-card" style="border-left-color: #40ba37;">
+                    <h5>Yeni Form</h5>
+                    <h3>7</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12 col-lg-6">
+    <div class="dashboard-card" style="min-height: 400px;">
+        <h4 style="color: #474747; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">Son Hareketler</h4>
+        
+        <ul class="activity-log">
+            <li>
+                <p class="log-content">
+                    03.09.2025 15:35:04 Yıldız Kahraman, Patatesli Omlet tarifini ekledi.
+                </p>
+            </li>
+           
+            <li>
+                <p class="log-content">
+                    14.08.2025 11:18:43 İrem Kahraman, Çocuğuma beslenme blog yazısını ekledi.
+                </p>
+            </li>
+          
+            <li>
+                <p class="log-content">
+                    13.08.2025 07:59:59 Zeynep Tutmacı, şikayet formu gönderdi.
+                </p>
+            </li>
+         
+        </ul>
+    </div>
+</div>
+            
+            <div class="col-12 col-lg-6">
+                <div class="dashboard-card" style="min-height: 400px;">
+                    <h4 style="color: #474747; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; text-align: center;">Bugünkü Aktiflik</h4>
+                    <div class="pie-analysis-container">
+                        
+                       <div class="single-pie-bar mb-80" data-percent="60">
+                                    <canvas class="bar-circle" width="70" height="100"></canvas>
+                                    <h6>Bugünkü Aktiflik</h6>
+                                </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery/jquery-2.2.4.min.js"></script>
+    <script src="js/bootstrap/popper.min.js"></script>
+    <script src="js/bootstrap/bootstrap.min.js"></script>
+    <script src="js/plugins/plugins.js"></script>
+    <script src="js/active.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('admin-sidebar');
+        const toggler = document.getElementById('mobile-menu-toggler');
+        const overlay = document.getElementById('sidebar-overlay');
+        const body = document.body;
+        const adminContent = document.querySelector('.admin-content');
+
+        // Menü Açma/Kapama Fonksiyonu
+        function toggleMenu() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('visible');
+            body.classList.toggle('menu-open');
+            
+            // Menü açıkken scroll'u tamamen engelle
+            if (sidebar.classList.contains('open')) {
+                body.style.overflow = 'hidden';
+                adminContent.style.overflow = 'hidden';
+            } else {
+                body.style.overflow = '';
+                adminContent.style.overflow = '';
+            }
+        }
+
+        // Buton Tıklama Olayı
+        toggler.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleMenu();
+        });
+
+        // Overlay Tıklama Olayı
+        overlay.addEventListener('click', toggleMenu);
+
+        // Sidebar dışına tıklayınca menüyü kapat
+        document.addEventListener('click', function(e) {
+            if (!sidebar.contains(e.target) && 
+                !toggler.contains(e.target) && 
+                sidebar.classList.contains('open')) {
+                toggleMenu();
+            }
+        });
+
+        // Pencere boyutu değiştiğinde
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 991) {
+                if (sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('visible');
+                    body.classList.remove('menu-open');
+                    body.style.overflow = '';
+                    adminContent.style.overflow = '';
+                }
+            }
+        });
+
+        // ESC tuşu ile menüyü kapat
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+                toggleMenu();
+            }
+        });
+        
+        // Sayfa yüklendiğinde scroll'u sıfırla
+        window.scrollTo(0, 0);
+        
+        // iOS için ek düzeltme (touch event'leri)
+        let startX = 0;
+        let startY = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', function(e) {
+            if (sidebar.classList.contains('open')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Admin Öneri ve Şikayet Yönetimi">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Admin Panel - Öneri & Şikayet</title>
+    <link rel="icon" href="img/core-img/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+       
+        body {
+            font-family: "Open Sans", sans-serif;
+            background-color: #f3f5f8;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; 
+        }
+        
+     
+        .mobile-menu-toggler {
+            display: none; 
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background-color: #D34E4E;
+            color: #ffffff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .sidebar-overlay.visible {
+            display: block;
+        }
+
+      
+        .admin-sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #474747;
+            color: #ffffff;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        .admin-info {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        .admin-info h4 {
+            color: #ffffff;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .admin-info p {
+            color: #CE7E5A;
+            font-size: 14px;
+            margin: 0;
+        }
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            flex-grow: 1;
+        }
+        .sidebar-nav li {
+            margin-bottom: 10px;
+        }
+        .sidebar-nav a {
+            display: block;
+            padding: 12px 15px;
+            color: #ffffff;
+            font-weight: 400;
+            font-size: 14px;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background-color: #D34E4E;
+            color: #ffffff;
+        }
+        .sidebar-nav a i {
+            margin-right: 10px;
+        }
+        .logout-link {
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+        }
+        .logout-link a {
+            background-color: transparent !important;
+            border: 1px solid #D34E4E;
+            color: #D34E4E !important;
+            text-align: center;
+            font-weight: 600;
+        }
+        .logout-link a:hover {
+            background-color: #D34E4E !important;
+            color: #ffffff !important;
+        }
+        .admin-content {
+            margin-left: 250px;
+            padding: 40px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease; 
+        }
+        .admin-heading {
+            font-size: 30px;
+            color: #474747;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #D34E4E;
+            padding-bottom: 10px;
+        }
+        
+        
+        @media (max-width: 991px) {
+            .mobile-menu-toggler {
+                display: block;
+            }
+            .admin-sidebar {
+                transform: translateX(-100%); 
+            }
+            .admin-sidebar.open {
+                transform: translateX(0);
+            }
+            .admin-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+                padding-top: 80px; 
+            }
+            .admin-heading {
+                font-size: 24px;
+                margin-top: 0;
+                margin-bottom: 30px;
+            }
+        }
+        
+       
+        body.menu-open {
+            overflow: hidden;
+        }
+        
+       
+        .feedback-card {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: box-shadow 0.3s, transform 0.3s;
+            border-left: 4px solid;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .feedback-card:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .feedback-card.suggestion {
+            border-left-color: #40ba37; 
+        }
+        .feedback-card.complaint {
+            border-left-color: #D34E4E; 
+        }
+
+        .feedback-type {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .feedback-type .icon {
+            margin-right: 8px;
+            font-size: 20px;
+        }
+        .feedback-type .icon.suggestion { color: #40ba37; }
+        .feedback-type .icon.complaint { color: #D34E4E; }
+        
+        .feedback-sender {
+            font-size: 14px;
+            color: #9b9b9b;
+        }
+        
+       
+        .modal-header {
+            background-color: #F9E7B2;
+            border-bottom: none;
+            color: #474747;
+        }
+        .modal-header .modal-title {
+            font-weight: 700;
+        }
+        .modal-body strong {
+            color: #D34E4E;
+            display: block;
+            margin-top: 10px;
+        }
+        .modal-body p {
+            color: #474747;
+            line-height: 1.6;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    
+    <button class="mobile-menu-toggler" id="mobile-menu-toggler">
+        <i class="fa fa-bars"></i>
+    </button>
+    
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <div class="admin-sidebar" id="admin-sidebar">
+        
+        <div class="admin-info">
+            <i class="fa fa-user-circle fa-3x mb-2" style="color: #CE7E5A;"></i>
+            <h4>Gülnihal Eruslu</h4>
+            <p>Admin</p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li>
+                <a href="admin_panel.html">
+                    <i class="fa fa-dashboard"></i> Genel Bakış
+                </a>
+            </li>
+            
+            <li>
+                <a href="admin_tarif.html">
+                    <i class="fa fa-cutlery"></i> Tarifler
+                </a>
+            </li>
+            <li>
+                <a href="admin_blog.html">
+                    <i class="fa fa-pencil-square-o"></i> Blog Yazıları
+                </a>
+            </li>
+            <li>
+                <a href="admin_duyuru.html">
+                    <i class="fa fa-bullhorn"></i> Duyurular
+                </a>
+            </li>
+            <li>
+                <a href="admin_oneri.html" class="active">
+                    <i class="fa fa-envelope-o"></i> Öneri & Şikayet
+                </a>
+            </li>
+        </ul>
+        
+        <div class="logout-link">
+             <a href="index.html" class="btn delicious-btn w-100 btn-4">
+                 <i class="fa fa-sign-out"></i> Çıkış Yap
+             </a>
+        </div>
+
+    </div>
+    <div class="admin-content">
+        <h1 class="admin-heading">Öneri ve Şikayetler Ekranı</h1>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="feedback-card suggestion" data-toggle="modal" data-target="#oneriDetayModal1"
+                    data-type="Öneri"
+                    data-sender="Ayşe Yılmaz"
+                    data-email="ayse.yilmaz@mail.com"
+                    data-content="Sitenizdeki tarifler çok güzel. Dünya mutfağı kategorisine Rus Mutfağını denemenizi öneririm.">
+                    
+                    <div class="feedback-type">
+                        <i class="fa fa-lightbulb-o icon suggestion"></i> Öneri
+                    </div>
+                    <p class="feedback-sender">Gönderen: Ayşe Yılmaz</p>
+                </div>
+            </div>
+
+            
+
+            <div class="col-12">
+                 <div class="feedback-card complaint" data-toggle="modal" data-target="#oneriDetayModal2"
+                    data-type="Şikayet"
+                    data-sender="Kerem Uzun"
+                    data-email="kerem.uzun@mail.com"
+                    data-content="Bazı tariflerinizi verdiğiniz tahmini hazırlanış sürelerinde tamamlamak mümkün olmuyor. O süre kısımlarına lütfen gerçekçi sayılar girin rica ediyorum!">
+                    
+                    <div class="feedback-type">
+                        <i class="fa fa-warning icon complaint"></i> Şikayet
+                    </div>
+                    <p class="feedback-sender">Gönderen: Kerem Uzun</p>
+                </div>
+            </div>
+
+            
+        </div>
+
+    </div>
+    
+    <div class="modal fade" id="oneriDetayModal1" tabindex="-1" role="dialog" aria-labelledby="oneriDetayModal1Label" aria-hidden="true">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content delicious-modal-content">
+                <div class="modal-header" style="border-left: 5px solid #40ba37;">
+                    <h5 class="modal-title" id="oneriDetayModal1Label">Mesaj Detayı: Öneri</h5>
+                    <button type="button" class="close delicious-modal-close" data-dismiss="modal" aria-label="Kapat">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h4 class="mb-3" style="color: #474747;">
+                        <i class="fa fa-lightbulb-o icon suggestion"></i> Öneri
+                    </h4>
+                    
+                    <strong>Gönderen Adı:</strong>
+                    <p>Ayşe Yılmaz</p>
+                    
+                    <strong>E-posta:</strong>
+                    <p>ayse.yilmaz@mail.com</p>
+
+                    <strong>Mesaj İçeriği:</strong>
+                    <p>Sitenizdeki tarifler çok güzel. Dünya mutfağı kategorisine Rus Mutfağını denemenizi öneririm.</p>
+                </div>
+                <div class="modal-footer">
+                   
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="oneriDetayModal2" tabindex="-1" role="dialog" aria-labelledby="oneriDetayModal2Label" aria-hidden="true">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content delicious-modal-content">
+                <div class="modal-header" style="border-left: 5px solid #D34E4E;">
+                    <h5 class="modal-title" id="oneriDetayModal2Label">Mesaj Detayı: Şikayet</h5>
+                    <button type="button" class="close delicious-modal-close" data-dismiss="modal" aria-label="Kapat">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h4 class="mb-3" style="color: #474747;">
+                        <i class="fa fa-warning icon complaint"></i> Şikayet
+                    </h4>
+                    
+                    <strong>Gönderen Adı:</strong>
+                    <p>Kerem Uzun</p>
+                    
+                    <strong>E-posta:</strong>
+                    <p>kerem.uzun@mail.com</p>
+
+                    <strong>Mesaj İçeriği:</strong>
+                    <p>Bazı tariflerinizi verdiğiniz tahmini hazırlanış sürelerinde tamamlamak mümkün olmuyor. O süre kısımlarına lütfen gerçekçi sayılar girin rica ediyorum!</p>
+                </div>
+                <div class="modal-footer">
+                   
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="js/jquery/jquery-2.2.4.min.js"></script>
+    <script src="js/bootstrap/popper.min.js"></script>
+    <script src="js/bootstrap/bootstrap.min.js"></script>
+    <script src="js/plugins/plugins.js"></script>
+    <script src="js/active.js"></script>
+    
+    <script>
+      
+        
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('admin-sidebar');
+            const toggler = document.getElementById('mobile-menu-toggler');
+            const overlay = document.getElementById('sidebar-overlay');
+            const body = document.body;
+            const adminContent = document.querySelector('.admin-content');
+
+           
+            function toggleMenu() {
+               
+                if (window.innerWidth <= 991) {
+                    sidebar.classList.toggle('open');
+                    overlay.classList.toggle('visible');
+                    body.classList.toggle('menu-open');
+                    
+                  
+                    if (sidebar.classList.contains('open')) {
+                        body.style.overflow = 'hidden';
+                        adminContent.style.overflow = 'hidden';
+                    } else {
+                        body.style.overflow = '';
+                        adminContent.style.overflow = '';
+                    }
+                }
+            }
+
+          
+            toggler.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleMenu();
+            });
+
+           
+            overlay.addEventListener('click', toggleMenu);
+
+       
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 991 && 
+                    !sidebar.contains(e.target) && 
+                    !toggler.contains(e.target) && 
+                    sidebar.classList.contains('open')) {
+                    toggleMenu();
+                }
+            });
+
+            
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 991) {
+                    if (sidebar.classList.contains('open')) {
+                        sidebar.classList.remove('open');
+                        overlay.classList.remove('visible');
+                        body.classList.remove('menu-open');
+                        body.style.overflow = '';
+                        adminContent.style.overflow = '';
+                    }
+                }
+            });
+            
+           
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+                    toggleMenu();
+                }
+            });
+            
+            
+            window.scrollTo(0, 0);
+        });
+        
+    </script>
+
+</body>
+
+</html>

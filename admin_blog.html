@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Admin Blog Yönetimi">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Admin Panel - Blog Yazıları</title>
+    <link rel="icon" href="img/core-img/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        
+        body {
+            font-family: "Open Sans", sans-serif;
+            background-color: #f3f5f8;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; 
+        }
+        
+        
+        .mobile-menu-toggler {
+            display: none; 
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background-color: #D34E4E;
+            color: #ffffff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+       
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .sidebar-overlay.visible {
+            display: block;
+        }
+        
+       
+        .admin-sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #474747;
+            color: #ffffff;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: transform 0.3s ease; 
+        }
+        .admin-info {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        .admin-info h4 {
+            color: #ffffff;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .admin-info p {
+            color: #CE7E5A;
+            font-size: 14px;
+            margin: 0;
+        }
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            flex-grow: 1;
+        }
+        .sidebar-nav li {
+            margin-bottom: 10px;
+        }
+        .sidebar-nav a {
+            display: block;
+            padding: 12px 15px;
+            color: #ffffff;
+            font-weight: 400;
+            font-size: 14px;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background-color: #D34E4E;
+            color: #ffffff;
+        }
+        .sidebar-nav a i {
+            margin-right: 10px;
+        }
+        .logout-link {
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+        }
+        .logout-link a {
+            background-color: transparent !important;
+            border: 1px solid #D34E4E;
+            color: #D34E4E !important;
+            text-align: center;
+            font-weight: 600;
+        }
+        .logout-link a:hover {
+            background-color: #D34E4E !important;
+            color: #ffffff !important;
+        }
+        .admin-content {
+            margin-left: 250px;
+            padding: 40px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease; 
+        }
+        .admin-heading {
+            font-size: 30px;
+            color: #474747;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #D34E4E;
+            padding-bottom: 10px;
+        }
+
+      
+
+     
+        @media (max-width: 991px) {
+            .mobile-menu-toggler {
+                display: block;
+            }
+            .admin-sidebar {
+                transform: translateX(-100%);
+            }
+            .admin-sidebar.open {
+                transform: translateX(0); 
+            }
+            .admin-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+                padding-top: 80px; 
+            }
+            .admin-heading {
+                font-size: 24px;
+                margin-top: 0;
+                margin-bottom: 30px;
+            }
+           
+            .mb-4.text-right {
+                text-align: left !important;
+            }
+        }
+        
+      
+        body.menu-open {
+            overflow: hidden;
+        }
+        
+       
+        .admin-table {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+        .table th {
+            color: #D34E4E;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .table td {
+            font-size: 14px;
+            vertical-align: middle;
+        }
+        .action-btn {
+            font-size: 16px;
+            margin-right: 5px;
+            color: #474747;
+            transition: color 0.3s;
+        }
+        .action-btn.edit:hover { color: #CE7E5A; }
+        .action-btn.view:hover { color: #5a7ece; } 
+        .action-btn.delete:hover { color: #D34E4E; }
+
+      
+        .modal-header {
+            background-color: #F9E7B2;
+            border-bottom: none;
+            color: #474747;
+        }
+        .modal-header .modal-title {
+            font-weight: 700;
+        }
+        .modal-body .form-group label {
+             font-weight: 600;
+             color: #474747;
+        }
+        .modal-body .form-control {
+            border-left: 3px solid #f3f5f8;
+        }
+        .modal-body .form-control:focus {
+            border-left: 3px solid #D34E4E;
+            box-shadow: none;
+        }
+       
+        .custom-file-input:focus ~ .custom-file-label {
+            border-color: #D34E4E;
+            box-shadow: 0 0 0 0.2rem rgba(211, 78, 78, 0.25);
+        }
+        .custom-file-label {
+            border-left: 3px solid #f3f5f8;
+            background-color: #f3f5f8;
+            color: #9b9b9b;
+        }
+        .custom-file-label::after {
+            background-color: #D34E4E;
+            color: #ffffff;
+            content: "Seç";
+        }
+        
+       
+        .modal-body .form-control[readonly],
+        .modal-body .form-control:disabled,
+        .modal-body .custom-select:disabled,
+        .modal-body textarea[readonly] { 
+            background-color: #e9ecef; 
+            opacity: 1; 
+        }
+        
+        
+        .image-preview-container, .file-display-container {
+            border: 2px dashed #D34E4E;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .image-preview-container img {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+        }
+        .file-display-container {
+             border-color: #474747; 
+        }
+        .file-display-container i {
+            font-size: 24px;
+            color: #D34E4E;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="mobile-menu-toggler" id="mobile-menu-toggler">
+        <i class="fa fa-bars"></i>
+    </button>
+    
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <div class="admin-sidebar" id="admin-sidebar">
+        
+        <div class="admin-info">
+            <i class="fa fa-user-circle fa-3x mb-2" style="color: #CE7E5A;"></i>
+            <h4>Gülnihal ERUSLU</h4>
+            <p>Admin</p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li>
+                <a href="admin_panel.html">
+                    <i class="fa fa-dashboard"></i> Genel Bakış
+                </a>
+            </li>
+         
+            <li>
+                <a href="admin_tarif.html">
+                    <i class="fa fa-cutlery"></i> Tarifler
+                </a>
+            </li>
+            <li>
+                <a href="admin_blog.html" class="active">
+                    <i class="fa fa-pencil-square-o"></i> Blog Yazıları
+                </a>
+            </li>
+            <li>
+                <a href="admin_duyuru.html">
+                    <i class="fa fa-bullhorn"></i> Duyurular
+                </a>
+            </li>
+            <li>
+                <a href="admin_oneri.html">
+                    <i class="fa fa-envelope-o"></i> Öneri & Şikayet
+                </a>
+            </li>
+        </ul>
+        
+        <div class="logout-link">
+             <a href="index.html" class="btn delicious-btn w-100 btn-4">
+                 <i class="fa fa-sign-out"></i> Çıkış Yap
+             </a>
+        </div>
+
+    </div>
+    <div class="admin-content">
+        <h1 class="admin-heading">Blog Yazıları Ekranı</h1>
+
+        <div class="mb-4 text-right">
+            <button type="button" class="btn delicious-btn" data-toggle="modal" data-target="#blogEkleModal">
+                <i class="fa fa-plus-circle"></i> Blog Yazısı Ekle
+            </button>
+        </div>
+
+        <div class="admin-table table-responsive">
+            <table class="table table-hover" id="blogTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Başlık</th>
+                        <th>Konu</th>
+                        <th>Türü</th>
+                        <th>Yazan</th>
+                        <th>Eklenme Tarihi</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-id="1" 
+                        data-title="Yemek Kültürü ve Sağlık" 
+                        data-topic="Sağlıklı Beslenme" 
+                        data-type="saglik" 
+                        data-author="Çiçek Ersoy" 
+                        data-date="2024-03-01">
+                        <td>1</td>
+                        <td class="blog-baslik">Patetesin En İyi 4 Hali</td>
+                        <td class="blog-konu">Tarif</td>
+                        <td class="blog-turu">Tarif</td>
+                        <td class="blog-yazan">Yağmur Demir</td>
+                        <td class="blog-tarihi">11 Ocak, 2024</td>
+                        <td>
+                            <a href="#" class="action-btn view" data-toggle="modal" data-target="#blogDetayModal1"><i class="fa fa-edit"></i></a>
+                            <a href="#" class="action-btn delete"><i class="fa fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    <tr data-id="2" 
+                        data-title="Mutfakta 5 Pratik İpucu" 
+                        data-topic="Pratik Bilgiler" 
+                        data-type="ipucu" 
+                        data-author="Aysun Taflan" 
+                        data-date="2024-02-15">
+                        <td>2</td>
+                        <td class="blog-baslik">Vejeteryanlık sağlıklı mı gerçekten?</td>
+                        <td class="blog-konu">Sağlık</td>
+                        <td class="blog-turu">Sağlık</td>
+                        <td class="blog-yazan">Aysun Taflan</td>
+                        <td class="blog-tarihi">11 Eylül, 202</td>
+                        <td>
+                            <a href="#" class="action-btn view" data-toggle="modal" data-target="#blogDetayModal2"><i class="fa fa-edit"></i></a>
+                            <a href="#" class="action-btn delete"><i class="fa fa-trash"></i></a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <div class="modal fade" id="blogEkleModal" tabindex="-1" role="dialog" aria-labelledby="blogEkleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content delicious-modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="blogEkleModalLabel">Yeni Blog Yazısı Paylaş</h5>
+                    <button type="button" class="close delicious-modal-close" data-dismiss="modal" aria-label="Kapat">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addBlogForm">
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label for="newBlogBasligi">Blog Başlığı</label>
+                                    <input type="text" class="form-control" id="newBlogBasligi" placeholder="Blog Başlığınız" required>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label for="newBlogYazan">Blog Yazan</label>
+                                    <input type="text" class="form-control" id="newBlogYazan" placeholder="Adınız Soyadınız" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label for="newBlogKonusu">Blog Konusu</label>
+                                    <input type="text" class="form-control" id="newBlogKonusu" placeholder="Blog Konunuz" required>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label for="newBlogTuru">Blog Türü</label>
+                                    <select class="form-control" id="newBlogTuru" required>
+                                        <option value="">Seçiniz...</option>
+                                        <option value="tarif">Sağlık</option>
+                                        <option value="kultur">Tarifler</option>
+                                        <option value="saglik">Atıştırmalıklar & İçecekler</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newBlogIcerigi">Blog İçeriği</label>
+                            <textarea class="form-control" id="newBlogIcerigi" rows="6" placeholder="İçeriğiniz"></textarea>
+                        </div>
+
+                         <div class="form-group">
+                            <label for="newBlogEklenmeTarihi">Eklenme Tarihi</label>
+                            <input type="date" class="form-control" id="newBlogEklenmeTarihi"  required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label for="newBlogGorseli">Görsel Ekle</label>
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="newBlogGorseli" accept="image/*">
+                                        <label class="custom-file-label" for="newBlogGorseli">Görsel Seç...</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label for="newBlogDosyasi">Ek Dosya Ekle (PDF/DOC vb.)</label>
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="newBlogDosyasi">
+                                        <label class="custom-file-label" for="newBlogDosyasi">Dosya Seç...</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn delicious-btn w-100">
+                                <i class="fa fa-pencil"></i> Blog Yazısını Paylaş
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="blogDetayModal1" tabindex="-1" role="dialog" aria-labelledby="blogDetayModal1Label" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content delicious-modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="blogDetayModal1Label"><i class="fa fa-info-circle"></i> Blog Detayları: <span id="viewBlogTitle1">Tarif</span></h5>
+                    <button type="button" class="close delicious-modal-close" data-dismiss="modal" aria-label="Kapat">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Blog Başlığı</label>
+                                    <input type="text" class="form-control" value="Tarif" readonly> 
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Blog Yazan</label>
+                                    <input type="text" class="form-control" value="Yağmur Demir" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Blog Konusu</label>
+                                    <input type="text" class="form-control" value="Tarif" readonly>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Blog Türü</label>
+                                    <select class="form-control" disabled>
+                                        <option value="saglik" selected>Tarif</option>
+                                        <option value="tarif">Tarif </option>
+                                        </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Blog İçeriği</label>
+                            <textarea class="form-control" rows="6" readonly>Tartışmasız herkesin en sevdiği ve kullandığı sebze. Peki yemeklerimizde bu kadar sık kullandığımız sebzenin en iyi hali nedir? Bu yazımda her bir halini inceleyip sıralıyoruz!</textarea> 
+                        </div>
+                        
+                         <div class="form-group">
+                            <label>Eklenme Tarihi</label>
+                            <input type="date" class="form-control" value="2024-01-11" readonly>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Görsel</label>
+                                    <div class="image-preview-container">
+                                        <img src="img/bg-img/Pin-Potatoes-101-1-resized.png" alt="Blog Görseli Önizleme">
+                                        <p class="text-muted mt-2 mb-0">Dosya Adı: patates.jpg</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Ek Dosya</label>
+                                    <div class="file-display-container">
+                                     
+                                        <p class="mb-0 mt-2 font-weight-bold">Ek Dosya bulunmamaktadır.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-4 text-center">
+                            <button type="button" class="btn delicious-btn btn-2" data-dismiss="modal">
+                                <i class="fa fa-times"></i> Kapat
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="blogDetayModal2" tabindex="-1" role="dialog" aria-labelledby="blogDetayModal2Label" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content delicious-modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="blogDetayModal2Label"><i class="fa fa-info-circle"></i> Blog Detayları: <span id="viewBlogTitle2">Vejeteryanlık sağlıklı mı gerçekten?</span></h5>
+                    <button type="button" class="close delicious-modal-close" data-dismiss="modal" aria-label="Kapat">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Blog Başlığı</label>
+                                    <input type="text" class="form-control" value="Vejeteryanlık sağlıklı mı gerçekten?" readonly> 
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Blog Yazan</label>
+                                    <input type="text" class="form-control" value="Aysun Taflan" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Blog Konusu</label>
+                                    <input type="text" class="form-control" value="Sağlık" readonly>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Blog Türü</label>
+                                    <select class="form-control" disabled>
+                                        <option value="ipucu" selected>Sağlık</option>
+                                        <option value="tarif">Tarif İncelemesi</option>
+                                        </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Blog İçeriği</label>
+                            <textarea class="form-control" rows="6" readonly>Vejeteryanlık sağlıklı mı gerçekten?</textarea> 
+                        </div>
+                        
+                         <div class="form-group">
+                            <label>Eklenme Tarihi</label>
+                            <input type="date" class="form-control" value="2024-02-15" readonly>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Görsel</label>
+                                    <div class="image-preview-container">
+                                        
+                                        <p class="text-muted mt-2 mb-0">Blog Görseli Bulunmamaktadır.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="form-group">
+                                    <label>Ek Dosya</label>
+                                    <div class="file-display-container">
+                                        <i class="fa fa-file-text-o"></i>
+                                        <p class="mb-0 mt-2 font-weight-bold">rapor_saglik.pdf</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-4 text-center">
+                            <button type="button" class="btn delicious-btn btn-2" data-dismiss="modal">
+                                <i class="fa fa-times"></i> Kapat
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+   
+
+    <script src="js/jquery/jquery-2.2.4.min.js"></script>
+    <script src="js/bootstrap/popper.min.js"></script>
+    <script src="js/bootstrap/bootstrap.min.js"></script>
+    <script src="js/plugins/plugins.js"></script>
+    <script src="js/active.js"></script>
+    
+    <script>
+        // Tarih formatını dd MMMM, yyyy formatına çeviren yardımcı fonksiyon
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const date = new Date(dateString);
+            return date.toLocaleDateString('tr-TR', options);
+        }
+
+      
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('admin-sidebar');
+            const toggler = document.getElementById('mobile-menu-toggler');
+            const overlay = document.getElementById('sidebar-overlay');
+            const body = document.body;
+            const adminContent = document.querySelector('.admin-content');
+
+           
+            function toggleMenu() {
+               
+                if (window.innerWidth <= 991) {
+                    sidebar.classList.toggle('open');
+                    overlay.classList.toggle('visible');
+                    body.classList.toggle('menu-open');
+                    
+                    
+                    if (sidebar.classList.contains('open')) {
+                        body.style.overflow = 'hidden';
+                        adminContent.style.overflow = 'hidden';
+                    } else {
+                        body.style.overflow = '';
+                        adminContent.style.overflow = '';
+                    }
+                }
+            }
+
+          
+            toggler.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleMenu();
+            });
+
+           
+            overlay.addEventListener('click', toggleMenu);
+
+            
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 991 && 
+                    !sidebar.contains(e.target) && 
+                    !toggler.contains(e.target) && 
+                    sidebar.classList.contains('open')) {
+                    toggleMenu();
+                }
+            });
+
+            //PENCERE BOYUTU DEGISTIGINDE BU OLUYOR
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 991) {
+                    if (sidebar.classList.contains('open')) {
+                        sidebar.classList.remove('open');
+                        overlay.classList.remove('visible');
+                        body.classList.remove('menu-open');
+                        body.style.overflow = '';
+                        adminContent.style.overflow = '';
+                    }
+                }
+            });
+            
+            // ESC ILE EKRANI KAPATMA SEYSI
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+                    toggleMenu();
+                }
+            });
+            
+            // SCROLL U SIFIRLIYOR
+            window.scrollTo(0, 0);
+        });
+        
+    </script>
+
+</body>
+
+</html>
