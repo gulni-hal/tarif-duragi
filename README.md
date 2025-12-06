@@ -1,6 +1,6 @@
 # Tarif Durağı
 
-**Tarif Durağı**, Delicious Bootstrap template'i temel alınarak geliştirilmiş, frontend ağırlıklı bir yemek tarifleri websitesidir.  
+**Tarif Durağı**, Delicious Bootstrap template'i temel alınarak geliştirilmiş frontend ağırlıklı bir yemek tarifleri websitesidir.  
 Proje HTML, CSS ve JavaScript yapısını anlamak, düzenlemek ve tasarımsal değişiklik yapmak amacıyla hazırlanmıştır.
 
 Kullanılan template:  [Delicious - Free Bootstrap Recipe Template](https://themewagon.com/themes/free-bootstrap-4-html5-recipe-website-template-delicious/)
